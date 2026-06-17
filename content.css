@@ -1,0 +1,40 @@
+/* Copy PR Link for Slack — icon button styling.
+   Self-contained (the new React PR header may not ship the old .btn class) but
+   driven by GitHub's Primer CSS variables so it matches light/dark themes. */
+
+#slack-copy-pr-link-btn.scpl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  padding: 5px;
+  border-radius: 6px;
+  color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+  background-color: var(--button-default-bgColor-rest, var(--color-btn-bg, #f6f8fa));
+  border: 1px solid
+    var(--button-default-borderColor-rest,
+      var(--borderColor-default, var(--color-btn-border, rgba(31, 35, 40, 0.15))));
+  transition: background-color 0.15s ease;
+}
+
+#slack-copy-pr-link-btn.scpl-btn:hover {
+  background-color: var(--button-default-bgColor-hover, var(--color-btn-hover-bg, #eef1f4));
+}
+
+#slack-copy-pr-link-btn.scpl-btn:active {
+  background-color: var(--button-default-bgColor-active, var(--color-btn-active-bg, #e6eaef));
+}
+
+/* Inside the title row, just after the "Edit title" pencil. */
+#slack-copy-pr-link-btn.scpl-btn--inline {
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+#slack-copy-pr-link-btn .scpl-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  display: block;
+}

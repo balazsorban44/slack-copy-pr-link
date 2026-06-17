@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Copy PR Link for Slack</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0;
+        width: 300px;
+        font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #1f2328;
+        background: #ffffff;
+      }
+      .wrap { padding: 14px 16px 16px; }
+      .title {
+        display: flex; align-items: center; gap: 8px;
+        margin: 0 0 12px; font-size: 14px; font-weight: 600;
+      }
+      .title svg { width: 18px; height: 18px; flex: 0 0 auto; }
+      label { display: block; font-weight: 600; margin-bottom: 6px; }
+      input[type="text"] {
+        width: 100%; box-sizing: border-box; padding: 6px 8px;
+        font: inherit; border: 1px solid #d0d7de; border-radius: 6px;
+        background: #fff; color: inherit;
+      }
+      input[type="text"]:focus { outline: 2px solid rgba(74, 21, 75, 0.25); border-color: #4A154B; }
+      .hint { margin: 8px 0 0; color: #59636e; font-size: 12px; }
+      .hint code { background: #eff1f3; padding: 0 4px; border-radius: 4px; }
+      .row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+      button {
+        font: inherit; font-weight: 600; cursor: pointer;
+        padding: 6px 14px; border-radius: 6px; border: 1px solid transparent;
+        background: #4A154B; color: #fff;
+      }
+      button:hover { background: #5a1d5c; }
+      .status { color: #1a7f37; font-size: 12px; }
+      .preview {
+        margin: 14px 0 0; padding-top: 12px;
+        border-top: 1px solid #eaeef2; color: #59636e; font-size: 12px;
+        word-break: break-word;
+      }
+      .preview b { color: #1f2328; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #0d1117; color: #e6edf3; }
+        input[type="text"] { background: #0d1117; border-color: #30363d; }
+        .hint, .preview, .status { color: #9198a1; }
+        .status { color: #3fb950; }
+        .hint code { background: #21262d; }
+        .preview { border-top-color: #21262d; }
+        .preview b { color: #e6edf3; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1 class="title">
+        <svg viewBox="0 0 127 127" aria-hidden="true">
+          <path fill="#E01E5A" d="M27.2 80c0 7.3-5.9 13.2-13.2 13.2C6.7 93.2.8 87.3.8 80c0-7.3 5.9-13.2 13.2-13.2h13.2V80zm6.6 0c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2v33c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V80z"/>
+          <path fill="#36C5F0" d="M47 27c-7.3 0-13.2-5.9-13.2-13.2C33.8 6.5 39.7.6 47 .6c7.3 0 13.2 5.9 13.2 13.2V27H47zm0 6.7c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H13.9C6.6 60.1.7 54.2.7 46.9c0-7.3 5.9-13.2 13.2-13.2H47z"/>
+          <path fill="#2EB67D" d="M99.9 46.9c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H99.9V46.9zm-6.6 0c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V13.8C66.9 6.5 72.8.6 80.1.6c7.3 0 13.2 5.9 13.2 13.2v33.1z"/>
+          <path fill="#ECB22E" d="M80.1 99.8c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V99.8h13.2zm0-6.6c-7.3 0-13.2-5.9-13.2-13.2 0-7.3 5.9-13.2 13.2-13.2h33.1c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H80.1z"/>
+        </svg>
+        Copy PR Link for Slack
+      </h1>
+
+      <label for="prefix">Message prefix</label>
+      <input id="prefix" type="text" placeholder=":opened:" spellcheck="false" autocomplete="off" />
+      <p class="hint">
+        Added before the link when you copy. Use a Slack emoji shortcode like
+        <code>:opened:</code>, or leave blank for none.
+      </p>
+
+      <div class="row">
+        <button id="save" type="button">Save</button>
+        <span id="status" class="status" role="status" aria-live="polite"></span>
+      </div>
+
+      <p class="preview">Pastes as:<br /><span id="preview"></span></p>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
