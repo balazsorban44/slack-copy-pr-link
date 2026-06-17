@@ -1,24 +1,31 @@
 #!/usr/bin/env bash
-# Build installable, ready-to-load zips for each browser from shared/ + the
-# per-browser manifest. Real files only (no symlinks) so the zips work anywhere.
+# Assemble the loadable extension folders, then package them.
 #
+# shared/ is the single source of truth. Chrome refuses to load unpacked
+# extensions whose files are symlinks resolving outside the extension root, so we
+# copy REAL files from shared/ into chrome/ and firefox/ (each keeps only its own
+# manifest.json in git; the copied files are git-ignored). Then zip each folder.
+#
+# Run this after editing anything in shared/, and before loading from source.
 # Output: dist/chrome.zip, dist/firefox.zip
 set -euo pipefail
-
 cd "$(dirname "$0")/.."
-out="dist"
-rm -rf "$out"
-mkdir -p "$out"
+
+mkdir -p dist
+rm -f dist/*.zip
+
+files=(content.js content.css popup.html popup.js)
 
 for browser in chrome firefox; do
-  stage="$out/stage-$browser"
-  mkdir -p "$stage/icons"
-  cp shared/content.js shared/content.css shared/popup.html shared/popup.js "$stage/"
-  cp shared/icons/*.png "$stage/icons/"
-  cp "$browser/manifest.json" "$stage/manifest.json"
-  ( cd "$stage" && zip -qr -X "../$browser.zip" . )
-  rm -rf "$stage"
+  for f in "${files[@]}"; do
+    cp -f --remove-destination "shared/$f" "$browser/$f"
+  done
+  rm -rf "$browser/icons"
+  mkdir -p "$browser/icons"
+  cp -f shared/icons/*.png "$browser/icons/"
+
+  ( cd "$browser" && zip -qr -X "../dist/$browser.zip" manifest.json "${files[@]}" icons )
 done
 
-echo "Built:"
-ls -l "$out"
+echo "Synced shared/ -> chrome/, firefox/ (real files) and packaged:"
+ls -l dist

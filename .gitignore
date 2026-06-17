@@ -4,3 +4,10 @@ Thumbs.db
 node_modules/
 *.zip
 dist/
+
+# The loadable folders are generated from shared/ by scripts/build.sh;
+# only each manifest.json is committed.
+/chrome/*
+!/chrome/manifest.json
+/firefox/*
+!/firefox/manifest.json
