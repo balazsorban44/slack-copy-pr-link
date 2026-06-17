@@ -9,28 +9,29 @@ Paste into Slack and you get the `:opened:` emoji followed by the PR title (with
 its number) as a clean clickable link, instead of a bare URL. The emoji is plain
 text outside the link, so Slack renders it as the emoji.
 
-## Install (load unpacked)
+## Install
+
+### From a release (no cloning)
+
+Download the latest zips from the [**Releases**](../../releases/latest) page:
+
+- **Chrome / Edge / Brave / Arc** — download `chrome.zip`, unzip it, open
+  `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and
+  select the unzipped folder.
+- **Firefox** — download `firefox.zip`, open
+  `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and
+  select `firefox.zip`. (Temporary add-ons clear on restart; sign via
+  [AMO](https://addons.mozilla.org) for a permanent install.)
+
+### From source (load unpacked)
 
 The shared code lives in [`shared/`](shared); the [`chrome/`](chrome) and
 [`firefox/`](firefox) folders each hold a browser-specific `manifest.json` plus
 symlinks into `shared/`, so there's a single source of truth (see
 [Project layout](#project-layout)).
 
-### Chrome / Edge / Brave / Arc
-
-1. Open `chrome://extensions`.
-2. Toggle **Developer mode** on (top-right).
-3. Click **Load unpacked** and select the **`chrome/`** folder.
-
-### Firefox
-
-1. Open `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on…**.
-3. Select **`firefox/manifest.json`**.
-
-   Temporary add-ons are removed when Firefox restarts; reload the same way after
-   a restart, or package/sign via [AMO](https://addons.mozilla.org) for a
-   permanent install.
+- **Chrome:** `chrome://extensions` → **Developer mode** → **Load unpacked** → the **`chrome/`** folder.
+- **Firefox:** `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → **`firefox/manifest.json`**.
 
 Then open any GitHub PR — a Slack-logo button appears in the title row, right
 after the *Edit title* button. After editing the code, reload the extension
@@ -87,6 +88,21 @@ The same `chrome.*` (callback-style) APIs and clipboard code work in both
 browsers, so only the manifests differ. The symlinks are committed to git; on
 Linux/macOS both browsers load them directly. (If you clone on Windows, enable
 git symlink support, or copy `shared/`'s contents into each folder instead.)
+
+## Building & releases
+
+Build the installable zips locally:
+
+```sh
+bash scripts/build.sh   # → dist/chrome.zip, dist/firefox.zip
+```
+
+A GitHub Actions workflow
+([`.github/workflows/release.yml`](.github/workflows/release.yml)) runs on every
+push to `main`: it bumps the patch version in both manifests, commits that back
+(`chore: release vX.Y.Z [skip ci]`), and publishes a GitHub Release with
+`chrome.zip` and `firefox.zip` attached. The bump commit is made with
+`GITHUB_TOKEN`, so it doesn't trigger another run.
 
 ## Permissions
 

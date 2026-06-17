@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Needed so the bot can commit the version bump and create the release.
+permissions:
+  contents: write
+
+# Serialize releases so versions/tags never collide.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Skip the run triggered by our own bump commit (belt-and-suspenders; pushes
+    # made with GITHUB_TOKEN don't trigger workflows anyway).
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Bump patch version (both manifests)
+        id: bump
+        run: |
+          old=$(node -p "require('./chrome/manifest.json').version")
+          new=$(node -e "const v='$old'.split('.').map(Number); v[2]++; console.log(v.join('.'))")
+          for m in chrome/manifest.json firefox/manifest.json; do
+            node -e "const fs=require('fs'),p='$m',j=JSON.parse(fs.readFileSync(p));j.version='$new';fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n')"
+          done
+          echo "Bumped $old -> $new"
+          echo "new=$new"  >> "$GITHUB_OUTPUT"
+          echo "tag=v$new" >> "$GITHUB_OUTPUT"
+
+      - name: Build zips
+        run: bash scripts/build.sh
+
+      - name: Commit version bump and tag
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add chrome/manifest.json firefox/manifest.json
+          git commit -m "chore: release ${{ steps.bump.outputs.tag }} [skip ci]"
+          git tag "${{ steps.bump.outputs.tag }}"
+          git push origin HEAD:main "${{ steps.bump.outputs.tag }}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "Automated release."
+            echo
+            echo "**Chrome / Edge / Brave / Arc** — download \`chrome.zip\`, unzip it, then open \`chrome://extensions\`, enable Developer mode, click **Load unpacked**, and select the unzipped folder."
+            echo
+            echo "**Firefox** — download \`firefox.zip\`, open \`about:debugging#/runtime/this-firefox\`, click **Load Temporary Add-on…**, and select \`firefox.zip\`. (Temporary add-ons clear on restart; sign via AMO for a permanent install.)"
+          } > dist/NOTES.md
+          gh release create "${{ steps.bump.outputs.tag }}" \
+            dist/chrome.zip dist/firefox.zip \
+            --title "${{ steps.bump.outputs.tag }}" \
+            --notes-file dist/NOTES.md
