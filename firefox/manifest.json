@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Copy PR Link for Slack",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Adds a button to GitHub pull requests that copies a Slack-ready link: an emoji prefix, then the PR title (with number) linked to the PR URL.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "copy-pr-link-for-slack@balazsorban.com",
+      "strict_min_version": "109.0"
+    }
+  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
