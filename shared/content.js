@@ -11,6 +11,7 @@
   'use strict';
 
   const PR_PATH = /^\/([^/]+)\/([^/]+)\/pull\/(\d+)/;
+  const PR_LIST_PATH = /^\/[^/]+\/[^/]+\/pulls/;
   const BTN_ID = 'slack-copy-pr-link-btn';
   const BTN_TITLE = 'Copy a Slack-ready link to this PR';
 
@@ -243,6 +244,51 @@
     return null;
   }
 
+  function getPrInfoFromRow(row) {
+    const a = row.querySelector('a.markdown-title, a.js-navigation-open[href*="/pull/"]');
+    if (!a) return null;
+    const m = (a.getAttribute('href') || '').match(/^\/([^/]+)\/([^/]+)\/pull\/(\d+)/);
+    if (!m) return null;
+    const [, owner, repo, number] = m;
+    return {
+      url: `${location.origin}/${owner}/${repo}/pull/${number}`,
+      title: `${a.textContent.trim()} #${number}`,
+      number,
+    };
+  }
+
+  function makeListButton(info) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-sm scpl-btn scpl-list-btn';
+    btn.title = BTN_TITLE;
+    btn.setAttribute('aria-label', 'Copy PR link for Slack');
+    btn.innerHTML = ICON_SVG;
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const ok = await copyLink(info);
+      flash(btn, ok);
+    });
+    return btn;
+  }
+
+  function ensureListButtons() {
+    if (!PR_LIST_PATH.test(location.pathname)) return;
+    for (const row of document.querySelectorAll('.js-issue-row:not([data-scpl])')) {
+      const info = getPrInfoFromRow(row);
+      if (!info) continue;
+      row.setAttribute('data-scpl', '1');
+      const titleLink = row.querySelector('a.markdown-title, a.js-navigation-open[href*="/pull/"]');
+      if (!titleLink) continue;
+      const btn = makeListButton(info);
+      const statusSpan = titleLink.nextElementSibling?.tagName === 'SPAN'
+        ? titleLink.nextElementSibling
+        : null;
+      (statusSpan || titleLink).insertAdjacentElement('afterend', btn);
+    }
+  }
+
   function ensureButton() {
     if (!PR_PATH.test(location.pathname)) return;
     if (document.getElementById(BTN_ID)) return;
@@ -283,10 +329,12 @@
     requestAnimationFrame(() => {
       scheduled = false;
       ensureButton();
+      ensureListButtons();
     });
   }
 
   ensureButton();
+  ensureListButtons();
 
   new MutationObserver(schedule).observe(document.documentElement, {
     childList: true,
