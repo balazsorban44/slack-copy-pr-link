@@ -69,3 +69,18 @@ jobs:
             dist/chrome.zip dist/firefox.zip \
             --title "${{ steps.bump.outputs.tag }}" \
             --notes-file dist/NOTES.md
+
+      # Submit the Firefox build to addons.mozilla.org (listed channel). The first
+      # run creates the listing from amo-metadata.json; later runs add a version.
+      # Human review happens asynchronously on AMO, so we don't wait for approval.
+      # Keys: https://addons.mozilla.org/developers/addon/api/key/
+      - name: Submit to Firefox Add-ons (AMO)
+        run: |
+          npx --yes web-ext@8 sign \
+            --source-dir firefox \
+            --api-key "${{ secrets.AMO_JWT_ISSUER }}" \
+            --api-secret "${{ secrets.AMO_JWT_SECRET }}" \
+            --channel listed \
+            --amo-metadata amo-metadata.json \
+            --approval-timeout 0 \
+            --artifacts-dir dist/amo

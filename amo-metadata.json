@@ -1,0 +1,20 @@
+{
+  "summary": {
+    "en-US": "Adds a Slack-logo button to GitHub pull requests that copies a Slack-ready link: an emoji prefix, then the PR title (with number) hyperlinked to the PR. Paste into Slack and get a clean clickable link instead of a bare URL."
+  },
+  "description": {
+    "en-US": "Sharing a GitHub pull request in Slack usually means pasting a bare URL. This extension adds a small Slack-logo button next to the title of every GitHub pull request (and a copy button on the PR list). One click copies the PR to your clipboard as rich text:\n\n:opened: <b>PR title #123</b> (hyperlinked to the PR)\n\nPaste it into Slack and you get the emoji followed by the PR title as a clickable link. A plain-text fallback (title + URL) is included for editors that don't accept rich text.\n\n<b>Settings</b>\nClick the toolbar icon to change the message prefix. It defaults to the :opened: Slack emoji shortcode; use any shortcode (e.g. :rocket:) or leave it blank.\n\n<b>Privacy</b>\nRuns only on github.com pull request pages. No data is collected or sent anywhere; your prefix setting is stored with browser sync storage.\n\nSource code: https://github.com/balazsorban44/slack-copy-pr-link"
+  },
+  "homepage": {
+    "en-US": "https://github.com/balazsorban44/slack-copy-pr-link"
+  },
+  "support_url": {
+    "en-US": "https://github.com/balazsorban44/slack-copy-pr-link/issues"
+  },
+  "categories": ["web-development", "social-communication"],
+  "tags": ["github", "slack"],
+  "version": {
+    "license": "MIT",
+    "approval_notes": "Plain, unminified source; the shipped files are identical to shared/ in the GitHub repo (https://github.com/balazsorban44/slack-copy-pr-link, assembled by scripts/build.sh). The four innerHTML assignments in content.js set static SVG string constants only (ICON_SVG, ICON_OK, ICON_FAIL), never user or page data. No remote code, no network requests."
+  }
+}

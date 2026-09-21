@@ -18,10 +18,12 @@ Download the latest zips from the [**Releases**](../../releases/latest) page:
 - **Chrome / Edge / Brave / Arc** — download `chrome.zip`, unzip it, open
   `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and
   select the unzipped folder.
-- **Firefox** — download `firefox.zip`, open
-  `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and
-  select `firefox.zip`. (Temporary add-ons clear on restart; sign via
-  [AMO](https://addons.mozilla.org) for a permanent install.)
+- **Firefox** — install from
+  [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/copy-pr-link-for-slack/)
+  (signed, auto-updates). To try an unsigned build instead, download
+  `firefox.zip`, open `about:debugging#/runtime/this-firefox`, click **Load
+  Temporary Add-on…**, and select `firefox.zip` (temporary add-ons clear on
+  restart).
 
 ### From source (load unpacked)
 
@@ -110,7 +112,11 @@ A GitHub Actions workflow
 ([`.github/workflows/release.yml`](.github/workflows/release.yml)) runs on every
 push to `main`: it bumps the patch version in both manifests, commits that back
 (`chore: release vX.Y.Z [skip ci]`), and publishes a GitHub Release with
-`chrome.zip` and `firefox.zip` attached. The bump commit is made with
+`chrome.zip` and `firefox.zip` attached, then submits the Firefox build to
+[addons.mozilla.org](https://addons.mozilla.org/firefox/addon/copy-pr-link-for-slack/)
+via `web-ext sign` (listing metadata lives in
+[`amo-metadata.json`](amo-metadata.json); credentials are the `AMO_JWT_ISSUER` /
+`AMO_JWT_SECRET` repository secrets). The bump commit is made with
 `GITHUB_TOKEN`, so it doesn't trigger another run.
 
 ## Permissions
