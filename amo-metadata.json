@@ -11,8 +11,10 @@
   "support_url": {
     "en-US": "https://github.com/balazsorban44/slack-copy-pr-link/issues"
   },
-  "categories": ["web-development", "social-communication"],
-  "tags": ["github", "slack"],
+  "categories": [
+    "web-development",
+    "social-communication"
+  ],
   "version": {
     "license": "MIT",
     "approval_notes": "Plain, unminified source; the shipped files are identical to shared/ in the GitHub repo (https://github.com/balazsorban44/slack-copy-pr-link, assembled by scripts/build.sh). The four innerHTML assignments in content.js set static SVG string constants only (ICON_SVG, ICON_OK, ICON_FAIL), never user or page data. No remote code, no network requests."
