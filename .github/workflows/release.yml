@@ -26,9 +26,14 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
 
       - name: Bump patch version (both manifests)
         id: bump
@@ -43,7 +48,7 @@ jobs:
           echo "tag=v$new" >> "$GITHUB_OUTPUT"
 
       - name: Build zips
-        run: bash scripts/build.sh
+        run: pnpm build
 
       - name: Commit version bump and tag
         run: |
@@ -76,11 +81,6 @@ jobs:
       # Keys: https://addons.mozilla.org/developers/addon/api/key/
       - name: Submit to Firefox Add-ons (AMO)
         run: |
-          npx --yes web-ext@8 sign \
-            --source-dir firefox \
+          pnpm sign \
             --api-key "${{ secrets.AMO_JWT_ISSUER }}" \
-            --api-secret "${{ secrets.AMO_JWT_SECRET }}" \
-            --channel listed \
-            --amo-metadata amo-metadata.json \
-            --approval-timeout 0 \
-            --artifacts-dir dist/amo
+            --api-secret "${{ secrets.AMO_JWT_SECRET }}"

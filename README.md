@@ -33,15 +33,16 @@ populate them with real files (Chrome won't load a folder whose files are
 symlinks pointing outside it — see [Project layout](#project-layout)):
 
 ```sh
-bash scripts/build.sh
+pnpm install
+pnpm build
 ```
 
 - **Chrome:** `chrome://extensions` → **Developer mode** → **Load unpacked** → the **`chrome/`** folder.
 - **Firefox:** `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on…** → **`firefox/manifest.json`**.
 
 Then open any GitHub PR — a Slack-logo button appears in the title row, right
-after the *Edit title* button. After editing `shared/`, re-run `bash
-scripts/build.sh` and reload the extension (Chrome: ↻ on the card; Firefox:
+after the *Edit title* button. After editing `shared/`, re-run `pnpm build` and reload
+the extension (Chrome: ↻ on the card; Firefox:
 **Reload** in `about:debugging`).
 
 ## Usage
@@ -105,8 +106,12 @@ both browsers, so only the manifests differ.
 Build the installable zips locally:
 
 ```sh
-bash scripts/build.sh   # → dist/chrome.zip, dist/firefox.zip
+pnpm install
+pnpm build   # → dist/chrome.zip, dist/firefox.zip
+pnpm lint    # AMO validator (web-ext lint) against the Firefox build
 ```
+
+Requires Node 24 (see `.nvmrc`) and pnpm.
 
 A GitHub Actions workflow
 ([`.github/workflows/release.yml`](.github/workflows/release.yml)) runs on every

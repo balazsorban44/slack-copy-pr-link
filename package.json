@@ -1,0 +1,20 @@
+{
+  "name": "slack-copy-pr-link",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Browser extension that copies a GitHub PR as a Slack-ready link. The shipped version lives in chrome/manifest.json and firefox/manifest.json.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@11.27.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "lint": "web-ext lint --source-dir firefox",
+    "sign": "web-ext sign --source-dir firefox --channel listed --amo-metadata amo-metadata.json --approval-timeout 0 --artifacts-dir dist/amo"
+  },
+  "devDependencies": {
+    "web-ext": "^10.6.0"
+  }
+}
