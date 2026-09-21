@@ -5,7 +5,7 @@
   "description": "Browser extension that copies a GitHub PR as a Slack-ready link. The shipped version lives in chrome/manifest.json and firefox/manifest.json.",
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@11.27.0",
+  "packageManager": "pnpm@12.5.1",
   "engines": {
     "node": ">=24"
   },
