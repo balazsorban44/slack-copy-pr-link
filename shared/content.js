@@ -1,7 +1,7 @@
 // Copy PR Link for Slack
 // Adds an icon button to GitHub pull request pages. Clicking it puts a rich-text
-// link on the clipboard: an emoji shortcode, then "PR title #number" linked to the
-// PR URL — so pasting into Slack gives ":opened: <linked title #number>".
+// link on the clipboard: an emoji shortcode, then "PR title (#number)" linked to the
+// PR URL — so pasting into Slack gives ":opened: <linked title (#number)>".
 //
 // GitHub ships two PR header layouts (classic Rails and the newer React header),
 // so injection tries the classic action bar, then sits right after the title's
@@ -111,8 +111,8 @@
       cleanTitle(document.title.replace(/\s*·.*$/, ''), number) ||
       'Pull Request';
 
-    // Keep the PR number in the link text, the way GitHub shows it.
-    const title = `${base} #${number}`;
+    // Keep the PR number in the link text, in parentheses.
+    const title = `${base} (#${number})`;
 
     return { url, title, number };
   }
@@ -252,7 +252,7 @@
     const [, owner, repo, number] = m;
     return {
       url: `${location.origin}/${owner}/${repo}/pull/${number}`,
-      title: `${a.textContent.trim()} #${number}`,
+      title: `${a.textContent.trim()} (#${number})`,
       number,
     };
   }

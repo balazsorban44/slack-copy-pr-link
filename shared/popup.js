@@ -14,7 +14,7 @@ function renderPreview() {
   previewEl.textContent = '';
   if (p) previewEl.append(p + ' ');
   const b = document.createElement('b');
-  b.textContent = 'PR title #123';
+  b.textContent = 'PR title (#123)';
   previewEl.append(b); // bold = the part that becomes the clickable link
 }
 
