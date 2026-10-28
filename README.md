@@ -3,7 +3,7 @@
 A tiny browser extension (Chrome & Firefox) that adds a Slack-logo button to
 GitHub pull request pages. Click it and the PR is copied to your clipboard as:
 
-> `:opened:` &nbsp; [**PR title #123**](#) ← hyperlinked to the PR URL
+> `:opened:` &nbsp; [**PR title (#123)**](#) ← hyperlinked to the PR URL
 
 Paste into Slack and you get the `:opened:` emoji followed by the PR title (with
 its number) as a clean clickable link, instead of a bare URL. The emoji is plain
@@ -60,8 +60,8 @@ The link always points at the canonical PR URL, so it works from any PR sub-tab
 - On click it reads the PR title from the page (stripping UI controls like the
   "Edit title" button) and builds the canonical PR URL from the path, then writes
   **two clipboard flavors**:
-  - `text/html` → `:opened: <a href="URL">Title #123</a>` (what Slack and other rich editors use)
-  - `text/plain` → `:opened: Title #123` + newline + `URL` (fallback for plain-text targets)
+  - `text/html` → `:opened: <a href="URL">Title (#123)</a>` (what Slack and other rich editors use)
+  - `text/plain` → `:opened: Title (#123)` + newline + `URL` (fallback for plain-text targets)
 - The button is placed right after the **Edit title** button (new React header) or
   in the action bar (classic header), and is re-injected across GitHub's in-page
   (Turbo/PJAX/React) navigation.
@@ -79,7 +79,7 @@ for no prefix. Changes apply immediately, no reload needed.
 
 Other tweaks live in [`shared/content.js`](shared/content.js) — reload the
 extension after editing. For example, to change the link text, edit `getPrInfo()`
-(e.g. format the number as `` `${base} (#${number})` ``).
+(e.g. drop the parentheses around the number: `` `${base} #${number}` ``).
 
 ## Project layout
 
