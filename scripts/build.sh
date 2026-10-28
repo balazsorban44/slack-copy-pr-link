@@ -18,7 +18,8 @@ files=(content.js content.css popup.html popup.js)
 
 for browser in chrome firefox; do
   for f in "${files[@]}"; do
-    cp -f --remove-destination "shared/$f" "$browser/$f"
+    rm -f "$browser/$f"
+    cp "shared/$f" "$browser/$f"
   done
   rm -rf "$browser/icons"
   mkdir -p "$browser/icons"
