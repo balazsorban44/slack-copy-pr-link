@@ -2,6 +2,7 @@
 // Adds an icon button to GitHub pull request pages. Clicking it puts a rich-text
 // link on the clipboard: an emoji shortcode, then "PR title (#number)" linked to the
 // PR URL — so pasting into Slack gives ":opened: <linked title (#number)>".
+// Opt-in settings can add the repository and move or hide the number (see linkText).
 //
 // GitHub ships two PR header layouts (classic Rails and the newer React header),
 // so injection tries the classic action bar, then sits right after the title's
@@ -20,16 +21,25 @@
   // (and kept in sync) so the click handler can build the clipboard synchronously.
   const DEFAULT_PREFIX = ':opened:';
   let prefixText = DEFAULT_PREFIX;
+  // Opt-in link-text settings (see linkText). The defaults give the original
+  // "Title (#123)" output, so an update changes nothing until the user opts in.
+  const NUMBER_POSITIONS = ['after', 'before', 'none'];
+  const toPosition = (v) => (NUMBER_POSITIONS.includes(v) ? v : 'after');
+  let includeRepo = false;
+  let numberPosition = 'after';
   try {
-    chrome.storage.sync.get({ prefix: DEFAULT_PREFIX }, (res) => {
-      if (!chrome.runtime.lastError && res && typeof res.prefix === 'string') {
-        prefixText = res.prefix;
-      }
+    const defaults = { prefix: DEFAULT_PREFIX, includeRepo: false, numberPosition: 'after' };
+    chrome.storage.sync.get(defaults, (res) => {
+      if (chrome.runtime.lastError || !res) return;
+      if (typeof res.prefix === 'string') prefixText = res.prefix;
+      includeRepo = res.includeRepo === true;
+      numberPosition = toPosition(res.numberPosition);
     });
     chrome.storage.onChanged.addListener((changes, area) => {
-      if ((area === 'sync' || area === 'local') && changes.prefix) {
-        prefixText = changes.prefix.newValue ?? '';
-      }
+      if (area !== 'sync' && area !== 'local') return;
+      if (changes.prefix) prefixText = changes.prefix.newValue ?? '';
+      if (changes.includeRepo) includeRepo = changes.includeRepo.newValue === true;
+      if (changes.numberPosition) numberPosition = toPosition(changes.numberPosition.newValue);
     });
   } catch (e) {
     /* storage unavailable — fall back to the default prefix */
@@ -105,16 +115,26 @@
     // leak into the copied link.
     const url = `${location.origin}/${owner}/${repo}/pull/${number}`;
 
-    const base =
+    const title =
       readTitle(document.querySelector('.js-issue-title, [data-testid="issue-title"]'), number) ||
       readTitle(findTitleHeading(number), number) ||
       cleanTitle(document.title.replace(/\s*·.*$/, ''), number) ||
       'Pull Request';
 
-    // Keep the PR number in the link text, in parentheses.
-    const title = `${base} (#${number})`;
+    return { url, title, owner, repo, number };
+  }
 
-    return { url, title, number };
+  // Link text: the title plus a reference. The reference is the PR number, with
+  // the repository in front when that setting is on (GitHub's cross-repo short
+  // form, owner/repo#123). It goes after the title in parentheses (default) or
+  // before it with a colon; the number can also be hidden. Built at copy time, so
+  // a settings change also applies to buttons that are already on the page.
+  // Keep in sync with the preview in popup.js.
+  function linkText(info) {
+    const repo = includeRepo ? `${info.owner}/${info.repo}` : '';
+    const ref = repo + (numberPosition === 'none' ? '' : `#${info.number}`);
+    if (!ref) return info.title;
+    return numberPosition === 'before' ? `${ref}: ${info.title}` : `${info.title} (${ref})`;
   }
 
   function escapeHtml(s) {
@@ -128,8 +148,9 @@
   async function copyLink(info) {
     const prefix = prefixText ? prefixText + ' ' : '';
     // Emoji sits OUTSIDE the anchor so Slack renders it as an emoji, not link text.
-    const html = `${prefix}<a href="${escapeHtml(info.url)}">${escapeHtml(info.title)}</a>`;
-    const text = `${prefix}${info.title}\n${info.url}`;
+    const label = linkText(info);
+    const html = `${prefix}<a href="${escapeHtml(info.url)}">${escapeHtml(label)}</a>`;
+    const text = `${prefix}${label}\n${info.url}`;
 
     // Preferred: async clipboard API with both HTML and plain-text flavors.
     try {
@@ -252,7 +273,9 @@
     const [, owner, repo, number] = m;
     return {
       url: `${location.origin}/${owner}/${repo}/pull/${number}`,
-      title: `${a.textContent.trim()} (#${number})`,
+      title: a.textContent.trim(),
+      owner,
+      repo,
       number,
     };
   }

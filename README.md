@@ -71,15 +71,29 @@ The link always points at the canonical PR URL, so it works from any PR sub-tab
 Click the extension's toolbar icon to open settings and change the **message
 prefix** — the text added before the link. It defaults to the `:opened:` Slack
 emoji shortcode; set any shortcode you like (e.g. `:rocket:`) or leave it blank
-for no prefix. Changes apply immediately, no reload needed.
+for no prefix.
+
+Two optional settings change the link text. With the defaults, the link text
+stays `PR title (#123)`:
+
+| PR number        | Include repository name off | Include repository name on  |
+| ---------------- | --------------------------- | --------------------------- |
+| After the title  | `PR title (#123)` (default) | `PR title (owner/repo#123)` |
+| Before the title | `#123: PR title`            | `owner/repo#123: PR title`  |
+| Do not show      | `PR title`                  | `PR title (owner/repo)`     |
+
+The repository name helps when you share PRs from more than one repository in
+the same channel. The popup shows a preview of the result.
+
+Click **Save**. Changes apply immediately, no reload needed.
 
 > Tip: pin the extension (puzzle-piece menu → pin) so the icon is always visible.
 
 ## Customize (code)
 
 Other tweaks live in [`shared/content.js`](shared/content.js) — reload the
-extension after editing. For example, to change the link text, edit `getPrInfo()`
-(e.g. drop the parentheses around the number: `` `${base} #${number}` ``).
+extension after editing. For example, to change the link text, edit `linkText()`
+(e.g. drop the parentheses around the reference: `` `${info.title} ${ref}` ``).
 
 ## Project layout
 
@@ -127,7 +141,7 @@ via `web-ext sign` (listing metadata lives in
 ## Permissions
 
 - `clipboardWrite` — to place the link on your clipboard.
-- `storage` — to remember your message-prefix setting.
+- `storage` — to remember your settings.
 
 No data is collected or sent anywhere; everything runs locally in your browser.
-Your prefix setting is stored with `chrome.storage.sync`.
+Your settings are stored with `chrome.storage.sync`.

@@ -1,26 +1,40 @@
 // Settings popup for Copy PR Link for Slack.
-// Stores the message prefix in chrome.storage.sync; the content script reads it
-// and updates live via storage.onChanged.
+// Stores the message prefix and the link-text options in chrome.storage.sync;
+// the content script reads them and updates live via storage.onChanged.
 
 const DEFAULT_PREFIX = ':opened:';
+// The defaults give the original "PR title (#123)" output.
+const DEFAULTS = { prefix: DEFAULT_PREFIX, includeRepo: false, numberPosition: 'after' };
 
 const input = document.getElementById('prefix');
+const includeRepoEl = document.getElementById('include-repo');
+const positionEl = document.getElementById('number-position');
 const statusEl = document.getElementById('status');
 const previewEl = document.getElementById('preview');
 const saveBtn = document.getElementById('save');
+
+// Same rules as linkText() in content.js, with sample values.
+function sampleLinkText() {
+  const ref = (includeRepoEl.checked ? 'owner/repo' : '') + (positionEl.value === 'none' ? '' : '#123');
+  if (!ref) return 'PR title';
+  return positionEl.value === 'before' ? `${ref}: PR title` : `PR title (${ref})`;
+}
 
 function renderPreview() {
   const p = input.value.trim();
   previewEl.textContent = '';
   if (p) previewEl.append(p + ' ');
   const b = document.createElement('b');
-  b.textContent = 'PR title (#123)';
+  b.textContent = sampleLinkText();
   previewEl.append(b); // bold = the part that becomes the clickable link
 }
 
 function load() {
-  chrome.storage.sync.get({ prefix: DEFAULT_PREFIX }, (res) => {
+  chrome.storage.sync.get(DEFAULTS, (res) => {
     input.value = res && typeof res.prefix === 'string' ? res.prefix : DEFAULT_PREFIX;
+    includeRepoEl.checked = !!res && res.includeRepo === true;
+    const position = res && res.numberPosition;
+    positionEl.value = ['after', 'before', 'none'].includes(position) ? position : 'after';
     renderPreview();
     input.focus();
     input.select();
@@ -29,7 +43,12 @@ function load() {
 
 function save() {
   const value = input.value.trim();
-  chrome.storage.sync.set({ prefix: value }, () => {
+  const settings = {
+    prefix: value,
+    includeRepo: includeRepoEl.checked,
+    numberPosition: positionEl.value,
+  };
+  chrome.storage.sync.set(settings, () => {
     statusEl.textContent = chrome.runtime.lastError ? 'Error saving' : 'Saved ✓';
     setTimeout(() => {
       statusEl.textContent = '';
@@ -38,6 +57,8 @@ function save() {
 }
 
 input.addEventListener('input', renderPreview);
+includeRepoEl.addEventListener('change', renderPreview);
+positionEl.addEventListener('change', renderPreview);
 saveBtn.addEventListener('click', save);
 input.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') save();
